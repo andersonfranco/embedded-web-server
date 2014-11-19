@@ -174,8 +174,9 @@ public class EmbeddedServer {
 								String[] keyAndValue = parameterTokenizer
 										.nextToken().split("=");
 								if (keyAndValue.length > 1) {
-									String key = URLDecoder.decode(
-											keyAndValue[0], "utf-8");
+									String key = "GET_"
+											+ URLDecoder.decode(keyAndValue[0],
+													"utf-8");
 									String value = URLDecoder.decode(
 											keyAndValue[1], "utf-8");
 									parameters.put(key, value);
@@ -202,8 +203,8 @@ public class EmbeddedServer {
 							for (int i = 0; i < querystring.length; i++) {
 								String[] kv = querystring[i].split("=");
 								if (kv.length == 2) {
-									String key = URLDecoder.decode(kv[0],
-											"utf-8");
+									String key = "POST_"
+											+ URLDecoder.decode(kv[0], "utf-8");
 									String value = URLDecoder.decode(kv[1],
 											"utf-8");
 									parameters.put(key, value);

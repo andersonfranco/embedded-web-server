@@ -52,8 +52,8 @@ public class FileBasedRequestHandler implements HttpRequestHandler {
 	 */
 	public FileBasedRequestHandler(File base) {
 		if (!base.isDirectory()) {
-			throw new IllegalArgumentException("base must be a directory: "
-					+ base);
+			logger.warning("public_html not found. Using current directory instead.");
+			base = new File("").getAbsoluteFile();
 		}
 		this.base = base;
 	}
@@ -70,11 +70,24 @@ public class FileBasedRequestHandler implements HttpRequestHandler {
 			Map<String, String> parameters) {
 		Response response = new Response();
 
-		File fileToRead = new File(base, url);
+		File fileToRead = null;
+		Boolean embeddedFile = false;
+
+		/**
+		 * External Files - public_html
+		 */
+		fileToRead = new File(base, url);
 
 		if (!fileToRead.exists()) {
-			response.setNotFound(url);
-			return response;
+			/**
+			 * Embedded Files - embedded_public_html
+			 */
+			if (getClass().getResource("/embedded_public_html/" + url) != null) {
+				embeddedFile = true;
+			} else {
+				response.setNotFound(url);
+				return response;
+			}
 		}
 
 		// determine mime type
@@ -94,8 +107,14 @@ public class FileBasedRequestHandler implements HttpRequestHandler {
 		try {
 			int nextByte;
 			if (mimeType == null || mimeType.startsWith("text")) {
-				inTxt = new BufferedReader(new InputStreamReader(
-						new FileInputStream(fileToRead), "UTF-8"));
+				if (embeddedFile) {
+					inTxt = new BufferedReader(new InputStreamReader(
+							getClass().getResourceAsStream(
+									"/embedded_public_html/" + url)));
+				} else {
+					inTxt = new BufferedReader(new InputStreamReader(
+							new FileInputStream(fileToRead), "UTF-8"));
+				}
 				StringWriter writer = new StringWriter();
 				while ((nextByte = inTxt.read()) >= 0) {
 					writer.write(nextByte);
@@ -103,7 +122,14 @@ public class FileBasedRequestHandler implements HttpRequestHandler {
 				writer.close();
 				response.addContent(writer.toString());
 			} else {
-				inBin = new BufferedInputStream(new FileInputStream(fileToRead));
+				if (embeddedFile) {
+					inBin = new BufferedInputStream(
+							getClass().getResourceAsStream(
+									"/embedded_public_html/" + url));
+				} else {
+					inBin = new BufferedInputStream(new FileInputStream(
+							fileToRead));
+				}
 				ByteArrayOutputStream out = new ByteArrayOutputStream();
 				while ((nextByte = inBin.read()) >= 0) {
 					out.write(nextByte);
