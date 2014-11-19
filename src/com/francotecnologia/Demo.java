@@ -29,7 +29,7 @@ public class Demo {
 						url = url.substring(0, url.length() - 1);
 					}
 
-					// Default Home Page
+					// Default Home Page - /
 					if (url.equals("")) {
 						// Redirect
 						// response.setRedirect("/datetime");
