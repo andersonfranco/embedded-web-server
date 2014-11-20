@@ -52,7 +52,8 @@ public class FileBasedRequestHandler implements HttpRequestHandler {
 	 */
 	public FileBasedRequestHandler(File base) {
 		if (!base.isDirectory()) {
-			logger.warning("public_html not found. Using current directory instead.");
+			logger.warning(base
+					+ " not found. Using current directory instead.");
 			base = new File("").getAbsoluteFile();
 		}
 		this.base = base;
